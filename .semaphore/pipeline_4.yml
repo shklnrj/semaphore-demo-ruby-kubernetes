@@ -1,0 +1,18 @@
+version: v1.0
+name: Pipeline 4
+blocks:
+  - name: Docker Build
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - 'echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin'
+            - checkout
+            - 'docker pull "${DOCKER_USERNAME}"/semaphore-demo-ruby-kubernetes:latest || true'
+            - 'docker build --cache-from "${DOCKER_USERNAME}"/semaphore-demo-ruby-kubernetes:latest -t "${DOCKER_USERNAME}"/semaphore-demo-ruby-kubernetes:$SEMAPHORE_WORKFLOW_ID .'
+            - docker images
+            - 'docker push "${DOCKER_USERNAME}"/semaphore-demo-ruby-kubernetes:$SEMAPHORE_WORKFLOW_ID'
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
